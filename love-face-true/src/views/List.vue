@@ -2,21 +2,50 @@
   <div>
     <div v-if="isSignedIn">
       <v-card tile>
+        <v-text-field
+          v-model="searchKeywords"
+          label="Search keywords"
+          prepend-inner-icon="mdi-magnify"
+          single-line
+          clearable
+          color="primary"
+        >
+        </v-text-field>
+      </v-card>
+      <v-card tile>
         <v-list-item
           three-line
-          v-for="item in sheetData"
-          :key="item.__PowerAppsId__"
+          v-for="item in filterSheetData"
+          :key="item.RowNumber"
         >
           <v-list-item-header>
-            <v-list-item-title>{{ item.APP }}</v-list-item-title>
+            <v-list-item-title>
+              <div class="text-h4">{{ item.APP }}</div>
+            </v-list-item-title>
             <v-list-item-subtitle>
-              {{ item.Account }}
+              <div class="text-body-1">
+                <v-icon icon="mdi-account" color="secondary ml-0 mr-3"></v-icon>
+                {{ item.Account }}
+              </div>
             </v-list-item-subtitle>
             <v-list-item-subtitle>
-              {{ item.Password }}
+              <div class="text-body-1">
+                <v-icon icon="mdi-key" color="secondary ml-0 mr-3"></v-icon>
+                {{ item.Password }}
+              </div>
             </v-list-item-subtitle>
+            <v-divider class="mt-3"></v-divider>
           </v-list-item-header>
         </v-list-item>
+        <v-card-actions v-if="searchKeywords === null && filterSheetData?.length < sheetData.length">
+          <v-btn
+            @click="nextPage()"
+            color="secondary"
+            block
+            size="large"
+            >More<v-icon end icon="mdi-chevron-down"></v-icon></v-btn
+          >
+        </v-card-actions>
       </v-card>
     </div>
     <div v-if="!isSignedIn || !sheetData.length" class="text-center">
@@ -38,8 +67,17 @@ export default defineComponent({
   name: "List",
   data() {
     return {
+      searchKeywords: null,
       sheetData: [],
+      filterSheetData: null,
+      count: 10,
+      page: 1,
     };
+  },
+  watch: {
+    searchKeywords: _.debounce(function () {
+      this.filterData();
+    }, 1000),
   },
   computed: {
     ...mapState({
@@ -50,6 +88,34 @@ export default defineComponent({
     this.getSheet();
   },
   methods: {
+    nextPage() {
+      this.page ++;
+      this.filterData();
+    },
+    filterData() {
+      let data = this.sheetData;
+      if (this.searchKeywords !== null && this.searchKeywords.length) {
+        // Filter data
+        data = _.filter(
+          data,
+          _.flow(
+            _.identity,
+            _.values,
+            _.join,
+            _.toLower,
+            _.partialRight(_.includes, this.searchKeywords)
+          )
+        );
+      }
+      // Sort data
+      data = _.orderBy(
+        data,
+        ["APP", "Account"],
+        ["asc", "asc"]
+      );
+      // Slice data
+      this.filterSheetData = _.slice(data, 0, this.page*this.count);
+    },
     async getSheet() {
       const gapi = await this.$gapi.getGapiClient();
       gapi.client.sheets.spreadsheets.values
@@ -72,9 +138,11 @@ export default defineComponent({
                     [keyArray[2]]: el[2],
                     [keyArray[3]]: el[3],
                     [keyArray[4]]: el[4],
+                    RowNumber: Number(key),
                   });
                 }
               }
+              this.filterData();
             } else {
               console.log("No data found.");
             }
