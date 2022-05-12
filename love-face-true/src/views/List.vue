@@ -37,6 +37,9 @@
             <v-divider class="mt-3"></v-divider>
           </v-list-item-header>
         </v-list-item>
+        <v-card-text v-if="filterSheetData?.length === 0">
+          <div class="text-h4">No data</div>
+        </v-card-text>
         <v-card-actions v-if="searchKeywords === null && filterSheetData?.length < sheetData.length">
           <v-btn
             @click="nextPage()"

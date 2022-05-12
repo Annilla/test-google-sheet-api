@@ -3,11 +3,17 @@
     <v-app-bar>
       <v-app-bar-title>Love Face True</v-app-bar-title>
       <v-spacer></v-spacer>
-      <v-list>
+      <v-list class="d-none d-sm-block">
         <v-list-item
           :prepend-avatar="user.imageUrl"
           :title="user.fullName"
           :subtitle="user.email"
+        >
+        </v-list-item>
+      </v-list>
+      <v-list class="d-sm-none">
+        <v-list-item
+          :prepend-avatar="user.imageUrl"
         >
         </v-list-item>
       </v-list>
