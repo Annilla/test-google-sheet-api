@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Layout from '../views/Layout.vue'
 import List from '../views/List.vue'
 import Detail from '../views/Detail.vue'
+import Edit from '../views/Edit.vue'
 
 const routes = [
   {
@@ -23,6 +24,11 @@ const routes = [
         path: '/detail/:RowNumber',
         name: 'detail',
         component: Detail
+      },
+      {
+        path: '/edit/:RowNumber',
+        name: 'edit',
+        component: Edit
       },
     ]
   },

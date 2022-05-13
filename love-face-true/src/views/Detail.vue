@@ -19,7 +19,7 @@
             </v-list-item>
             <v-divider class="mt-5"></v-divider>
             <v-card-actions>
-              <v-btn color="secondary" block size="large"
+              <v-btn color="secondary" block size="large" @click="goEdit()"
                 >Edit<v-icon end icon="mdi-pencil"></v-icon
               ></v-btn>
             </v-card-actions>
@@ -81,6 +81,9 @@ export default defineComponent({
   methods: {
     goList() {
       this.$router.push({ name: "list" });
+    },
+    goEdit() {
+      this.$router.push({ name: "edit", params: { RowNumber: this.currentData.RowNumber }});
     },
   },
 });

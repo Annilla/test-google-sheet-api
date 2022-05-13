@@ -85,6 +85,7 @@ import _ from "lodash";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import ProgressCircle from "../components/ProgressCircle.vue";
+import { getSheetAPI } from "../js/utils";
 
 export default defineComponent({
   name: "List",
@@ -155,42 +156,11 @@ export default defineComponent({
     },
     async getSheet() {
       this.loadAPI = true;
-      const gapi = await this.$gapi.getGapiClient();
-      gapi.client.sheets.spreadsheets.values
-        .get({
-          spreadsheetId: process.env.VUE_APP_SPREADSHEET_ID,
-          range: process.env.VUE_APP_SPREADSHEET_RANGE,
-        })
-        .then(
-          (response) => {
-            const range = response.result;
-            const dataArray = range.values;
-            const sheetArray = [];
-            if (dataArray.length > 0) {
-              const keyArray = dataArray[0];
-              for (const key in dataArray) {
-                if (key > 0) {
-                  const el = dataArray[key];
-                  sheetArray.push({
-                    [keyArray[0]]: el[0],
-                    [keyArray[1]]: el[1],
-                    [keyArray[2]]: el[2],
-                    [keyArray[3]]: el[3],
-                    [keyArray[4]]: el[4],
-                    RowNumber: Number(key),
-                  });
-                }
-              }
-              this.$store.commit('updateSheetData', sheetArray);
-              this.filterData();
-            } else {
-              console.log("No data found.");
-            }
-          },
-          (response) => {
-            console.log(`Error: ${response.result.error.message}`);
-          }
-        );
+      const res = await getSheetAPI(this);
+
+      if (res) {
+        this.filterData();
+      }
     },
   },
 });
