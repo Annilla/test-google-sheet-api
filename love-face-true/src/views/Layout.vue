@@ -26,21 +26,25 @@
         <router-view />
       </v-container>
     </v-main>
+    <LayoutSnackbar :message="snackbarMessage"></LayoutSnackbar>
   </v-app>
 </template>
 
 <script>
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
+import LayoutSnackbar from "../components/Layout.Snackbar.vue"
 
 export default defineComponent({
   name: "Layout",
+  components: { LayoutSnackbar },
   data() {
     return {};
   },
   computed: {
     ...mapState({
       isSignedIn: (state) => state.isSignedIn,
+      snackbarMessage: (state) => state.snackbarMessage,
     }),
     user() {
       // (4) Display authenticated user name

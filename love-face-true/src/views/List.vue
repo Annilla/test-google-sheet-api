@@ -13,41 +13,66 @@
         </v-text-field>
       </v-card>
       <v-card tile>
-        <v-list-item
-          three-line
+        <template
           v-for="item in filterSheetData"
-          :key="item.RowNumber"
+          :key="`v-list-item-${item.RowNumber}`"
         >
-          <v-list-item-header>
-            <v-list-item-title>
-              <div class="text-h4">{{ item.APP }}</div>
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              <div class="text-body-1">
-                <v-icon icon="mdi-account" color="secondary ml-0 mr-3"></v-icon>
-                {{ item.Account }}
-              </div>
-            </v-list-item-subtitle>
-            <v-list-item-subtitle>
-              <div class="text-body-1">
-                <v-icon icon="mdi-key" color="secondary ml-0 mr-3"></v-icon>
-                {{ item.Password }}
-              </div>
-            </v-list-item-subtitle>
-            <v-divider class="mt-3"></v-divider>
-          </v-list-item-header>
-        </v-list-item>
+          <v-list-item three-line>
+            <v-list-item-header>
+              <v-list-item-title>
+                <div class="text-h4">{{ item.APP }}</div>
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                <div class="text-body-1">
+                  <v-icon
+                    icon="mdi-account"
+                    color="secondary ml-0 mr-3"
+                  ></v-icon>
+                  {{ item.Account }}
+                </div>
+              </v-list-item-subtitle>
+              <v-list-item-subtitle>
+                <div class="text-body-1">
+                  <v-icon icon="mdi-key" color="secondary ml-0 mr-3"></v-icon>
+                  {{ item.Password }}
+                </div>
+              </v-list-item-subtitle>
+            </v-list-item-header>
+            <template v-slot:append>
+              <v-list-item-avatar end>
+                <v-btn
+                  variant="text"
+                  color="primary"
+                  icon="mdi-content-copy"
+                  @click="copyPassword(item.Password)"
+                ></v-btn>
+              </v-list-item-avatar>
+              <v-list-item-avatar end>
+                <v-btn variant="text" color="primary" icon="mdi-pencil"></v-btn>
+              </v-list-item-avatar>
+              <v-list-item-avatar end>
+                <v-btn
+                  variant="text"
+                  color="primary"
+                  icon="mdi-file-document-outline"
+                ></v-btn>
+              </v-list-item-avatar>
+            </template>
+          </v-list-item>
+          <v-divider class="mt-2 mb-2"></v-divider>
+        </template>
         <v-card-text v-if="filterSheetData?.length === 0">
           <div class="text-h4">No data</div>
         </v-card-text>
-        <v-card-actions v-if="searchKeywords === null && filterSheetData?.length < sheetData.length">
-          <v-btn
-            @click="nextPage()"
-            color="secondary"
-            block
-            size="large"
-            >More<v-icon end icon="mdi-chevron-down"></v-icon></v-btn
-          >
+        <v-card-actions
+          v-if="
+            searchKeywords === null &&
+            filterSheetData?.length < sheetData.length
+          "
+        >
+          <v-btn @click="nextPage()" color="secondary" block size="large"
+            >More<v-icon end icon="mdi-chevron-down"></v-icon
+          ></v-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -91,8 +116,18 @@ export default defineComponent({
     this.getSheet();
   },
   methods: {
+    copyPassword(password) {
+      navigator.clipboard
+        .writeText(password)
+        .then(() => {
+          this.$store.commit('updateSnackbarMessage', {text: 'Password copied!'});
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
     nextPage() {
-      this.page ++;
+      this.page++;
       this.filterData();
     },
     filterData() {
@@ -111,13 +146,9 @@ export default defineComponent({
         );
       }
       // Sort data
-      data = _.orderBy(
-        data,
-        ["APP", "Account"],
-        ["asc", "asc"]
-      );
+      data = _.orderBy(data, ["APP", "Account"], ["asc", "asc"]);
       // Slice data
-      this.filterSheetData = _.slice(data, 0, this.page*this.count);
+      this.filterSheetData = _.slice(data, 0, this.page * this.count);
     },
     async getSheet() {
       const gapi = await this.$gapi.getGapiClient();

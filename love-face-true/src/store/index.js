@@ -3,13 +3,20 @@ import { createStore } from 'vuex'
 export default createStore({
   state: {
     isSignedIn: null, // (1) Track authenticated state
+    snackbarMessage: {
+      text: '',
+    },
   },
   getters: {
   },
   mutations: {
-    // 更新 isSignedIn
+    // Update isSignedIn
     updateIsSignedIn(state, newIsSignedIn) {
       state.isSignedIn = newIsSignedIn;
+    },
+    // Update snackbarMessage
+    updateSnackbarMessage(state, newSnackbarMessage) {
+      state.snackbarMessage = newSnackbarMessage;
     },
   },
   actions: {
