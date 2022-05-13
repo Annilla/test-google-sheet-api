@@ -48,13 +48,11 @@
                 ></v-btn>
               </v-list-item-avatar>
               <v-list-item-avatar end>
-                <v-btn variant="text" color="primary" icon="mdi-pencil"></v-btn>
-              </v-list-item-avatar>
-              <v-list-item-avatar end>
                 <v-btn
                   variant="text"
                   color="primary"
                   icon="mdi-file-document-outline"
+                  @click="goDetail(item.RowNumber)"
                 ></v-btn>
               </v-list-item-avatar>
             </template>
@@ -76,12 +74,8 @@
         </v-card-actions>
       </v-card>
     </div>
-    <div v-if="!isSignedIn || !sheetData.length" class="text-center">
-      <v-progress-circular
-        indeterminate
-        color="primary"
-        class="mt-5"
-      ></v-progress-circular>
+    <div v-if="!isSignedIn || !sheetData.length || loadAPI" class="text-center">
+      <ProgressCircle/>
     </div>
   </div>
 </template>
@@ -90,14 +84,16 @@
 import _ from "lodash";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
+import ProgressCircle from "../components/ProgressCircle.vue";
 
 export default defineComponent({
   name: "List",
+  components: { ProgressCircle },
   data() {
     return {
       searchKeywords: null,
-      sheetData: [],
       filterSheetData: null,
+      loadAPI: false,
       count: 10,
       page: 1,
     };
@@ -110,12 +106,16 @@ export default defineComponent({
   computed: {
     ...mapState({
       isSignedIn: (state) => state.isSignedIn,
+      sheetData: (state) => state.sheetData,
     }),
   },
   mounted() {
     this.getSheet();
   },
   methods: {
+    goDetail(RowNumber) {
+      this.$router.push({ name: "detail", params: { RowNumber: RowNumber } });
+    },
     copyPassword(password) {
       navigator.clipboard
         .writeText(password)
@@ -151,8 +151,10 @@ export default defineComponent({
       data = _.orderBy(data, ["APP", "Account"], ["asc", "asc"]);
       // Slice data
       this.filterSheetData = _.slice(data, 0, this.page * this.count);
+      this.loadAPI = false;
     },
     async getSheet() {
+      this.loadAPI = true;
       const gapi = await this.$gapi.getGapiClient();
       gapi.client.sheets.spreadsheets.values
         .get({
@@ -163,12 +165,13 @@ export default defineComponent({
           (response) => {
             const range = response.result;
             const dataArray = range.values;
+            const sheetArray = [];
             if (dataArray.length > 0) {
               const keyArray = dataArray[0];
               for (const key in dataArray) {
                 if (key > 0) {
                   const el = dataArray[key];
-                  this.sheetData.push({
+                  sheetArray.push({
                     [keyArray[0]]: el[0],
                     [keyArray[1]]: el[1],
                     [keyArray[2]]: el[2],
@@ -178,6 +181,7 @@ export default defineComponent({
                   });
                 }
               }
+              this.$store.commit('updateSheetData', sheetArray);
               this.filterData();
             } else {
               console.log("No data found.");
