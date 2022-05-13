@@ -34,10 +34,8 @@ export default {
   methods: {
     show(e) {
       this.snackbar = false;
-      setTimeout(()=>{
-        this.text = e.text;
-        this.snackbar = true;
-      }, 500);
+      this.text = e.text;
+      this.snackbar = true;
     },
   },
 };
