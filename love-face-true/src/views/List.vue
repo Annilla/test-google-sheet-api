@@ -120,7 +120,9 @@ export default defineComponent({
       navigator.clipboard
         .writeText(password)
         .then(() => {
-          this.$store.commit('updateSnackbarMessage', {text: 'Password copied!'});
+          this.$store.commit("updateSnackbarMessage", {
+            text: `Password ${password} copied!`,
+          });
         })
         .catch((err) => {
           console.error(err);
