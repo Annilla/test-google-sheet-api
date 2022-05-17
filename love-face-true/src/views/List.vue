@@ -4,11 +4,11 @@
       <v-card tile>
         <v-text-field
           v-model="searchKeywords"
-          label="Search keywords"
           prepend-inner-icon="mdi-magnify"
           single-line
           clearable
           color="primary"
+          @update:modelValue="updateKeywords"
         >
         </v-text-field>
       </v-card>
@@ -75,7 +75,7 @@
       </v-card>
     </div>
     <div v-if="!isSignedIn || !sheetData.length || loadAPI" class="text-center">
-      <ProgressCircle/>
+      <ProgressCircle />
     </div>
   </div>
 </template>
@@ -99,11 +99,6 @@ export default defineComponent({
       page: 1,
     };
   },
-  watch: {
-    searchKeywords: _.debounce(function () {
-      this.filterData();
-    }, 1000),
-  },
   computed: {
     ...mapState({
       isSignedIn: (state) => state.isSignedIn,
@@ -111,9 +106,20 @@ export default defineComponent({
     }),
   },
   mounted() {
-    this.getSheet();
+    this.searchKeywords = this.$store.state.searchKeywords;
+
+    if (!this.sheetData.length) {
+      this.getSheet();
+    } else {
+      this.filterData();
+    }
   },
   methods: {
+    updateKeywords(v) {
+      console.log(v);
+      this.$store.commit("updateSearchKeywords", v);
+      this.filterData();
+    },
     goDetail(RowNumber) {
       this.$router.push({ name: "detail", params: { RowNumber: RowNumber } });
     },
@@ -133,7 +139,8 @@ export default defineComponent({
       this.page++;
       this.filterData();
     },
-    filterData() {
+    filterData: _.debounce(function () {
+      this.loadAPI = true;
       let data = this.sheetData;
       if (this.searchKeywords !== null && this.searchKeywords.length) {
         // Filter data
@@ -144,7 +151,7 @@ export default defineComponent({
             _.values,
             _.join,
             _.toLower,
-            _.partialRight(_.includes, this.searchKeywords)
+            _.partialRight(_.includes, _.toLower(this.searchKeywords))
           )
         );
       }
@@ -153,7 +160,7 @@ export default defineComponent({
       // Slice data
       this.filterSheetData = _.slice(data, 0, this.page * this.count);
       this.loadAPI = false;
-    },
+    }, 1000),
     async getSheet() {
       this.loadAPI = true;
       const res = await getSheetAPI(this);

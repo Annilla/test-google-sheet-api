@@ -155,9 +155,11 @@ export default defineComponent({
           });
           console.log(`${result.updatedCells} cells updated.`);
           // Renew sheet
-          await getSheetAPI(this);
-          this.loading = false;
-          this.goDetail();
+          const res = await getSheetAPI(this);
+          if (res) {
+            this.loading = false;
+            this.goDetail();
+          }
         });
     },
   },
