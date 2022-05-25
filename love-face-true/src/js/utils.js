@@ -4,7 +4,7 @@ async function getSheetAPI(vm) {
     const response = await gapi.client.sheets.spreadsheets.values
       .get({
         spreadsheetId: process.env.VUE_APP_SPREADSHEET_ID,
-        range: process.env.VUE_APP_SPREADSHEET_RANGE,
+        range: `${process.env.VUE_APP_SPREADSHEET_SHEET}!A1:E1000`,
       });
     const range = response.result;
     const dataArray = range.values;

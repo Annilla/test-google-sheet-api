@@ -7,10 +7,18 @@
           prepend-inner-icon="mdi-magnify"
           single-line
           clearable
+          hide-details
           color="primary"
           @update:modelValue="updateKeywords"
         >
         </v-text-field>
+      </v-card>
+      <v-card tile>
+        <v-card-actions>
+          <v-btn @click="goAdd()" color="secondary" block size="large"
+            >Add New<v-icon end icon="mdi-plus"></v-icon
+          ></v-btn>
+        </v-card-actions>
       </v-card>
       <v-card tile>
         <template
@@ -122,6 +130,9 @@ export default defineComponent({
     },
     goDetail(RowNumber) {
       this.$router.push({ name: "detail", params: { RowNumber: RowNumber } });
+    },
+    goAdd() {
+      this.$router.push({ name: "add" });
     },
     copyPassword(password) {
       navigator.clipboard

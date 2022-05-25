@@ -4,6 +4,7 @@ import Layout from '../views/Layout.vue'
 import List from '../views/List.vue'
 import Detail from '../views/Detail.vue'
 import Edit from '../views/Edit.vue'
+import Add from '../views/Add.vue'
 
 const routes = [
   {
@@ -29,6 +30,11 @@ const routes = [
         path: '/edit/:RowNumber',
         name: 'edit',
         component: Edit
+      },
+      {
+        path: '/add',
+        name: 'add',
+        component: Add
       },
     ]
   },

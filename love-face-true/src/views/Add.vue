@@ -66,7 +66,7 @@
             ></v-btn>
           </v-card-actions>
           <v-card-actions>
-            <v-btn color="primary" block size="large" @click="goDetail()" :disabled="loading"
+            <v-btn color="primary" block size="large" @click="goList()" :disabled="loading"
               >Cancel<v-icon end icon="mdi-cancel"></v-icon
             ></v-btn>
           </v-card-actions>
@@ -91,21 +91,19 @@ export default defineComponent({
   components: { ProgressCircle },
   data() {
     return {
-      inputValue: {},
+      inputValue: {
+        APP: '',
+        Account: '',
+        Password: '',
+        Remark: '',
+      },
       loading: false,
     };
   },
   computed: {
     ...mapState({
       isSignedIn: (state) => state.isSignedIn,
-      sheetData: (state) => state.sheetData,
     }),
-    currentData() {
-      const data = _.filter(this.sheetData, {
-        RowNumber: Number(this.$route.params.RowNumber),
-      });
-      return data[0];
-    },
     user() {
       const user = this.$gapi.getUserData();
 
@@ -118,23 +116,17 @@ export default defineComponent({
       return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`;
     }
   },
-  mounted() {
-    this.inputValue = this.currentData;
-  },
   methods: {
-    goDetail() {
-      this.$router.push({
-        name: "detail",
-        params: { RowNumber: this.currentData.RowNumber },
-      });
+    goList() {
+      this.$router.push({ name: "list" });
     },
     async saveData() {
       this.loading = true;
       const gapi = await this.$gapi.getGapiClient();
       gapi.client.sheets.spreadsheets.values
-        .update({
+        .append({
           spreadsheetId: process.env.VUE_APP_SPREADSHEET_ID,
-          range: `${process.env.VUE_APP_SPREADSHEET_SHEET}!A${this.currentData.RowNumber}:E${this.currentData.RowNumber}`,
+          range: `${process.env.VUE_APP_SPREADSHEET_SHEET}`,
           valueInputOption: "USER_ENTERED",
           resource: {
             values: [
@@ -151,14 +143,14 @@ export default defineComponent({
         .then(async (response) => {
           const result = response.result;
           this.$store.commit("updateSnackbarMessage", {
-            text: `${this.inputValue.APP} updated.`,
+            text: `${this.inputValue.APP} added.`,
           });
-          console.log(`${result.updatedCells} cells updated.`);
+          console.log(`${result.updates.updatedCells} cells appended.`);
           // Renew sheet
           const res = await getSheetAPI(this);
           if (res) {
             this.loading = false;
-            this.goDetail();
+            this.goList();
           }
         });
     },
