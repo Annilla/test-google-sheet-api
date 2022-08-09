@@ -71,10 +71,7 @@
           <div class="text-h4">No data</div>
         </v-card-text>
         <v-card-actions
-          v-if="
-            searchKeywords === null &&
-            filterSheetData?.length < sheetData.length
-          "
+          v-if="page * count < searchKeywordsDataLength"
         >
           <v-btn @click="nextPage()" color="secondary" block size="large"
             >More<v-icon end icon="mdi-chevron-down"></v-icon
@@ -102,6 +99,7 @@ export default defineComponent({
     return {
       searchKeywords: null,
       filterSheetData: null,
+      searchKeywordsDataLength: null,
       loadAPI: false,
       count: 10,
       page: 1,
@@ -155,20 +153,14 @@ export default defineComponent({
       let data = this.sheetData;
       if (this.searchKeywords !== null && this.searchKeywords.length) {
         // Filter data
-        data = _.filter(
-          data,
-          _.flow(
-            _.identity,
-            _.values,
-            _.join,
-            _.toLower,
-            _.partialRight(_.includes, _.toLower(this.searchKeywords))
-          )
-        );
+        data = _.filter(data,(el) => {
+          return _.includes(_.toLower(el.APP), this.searchKeywords) || _.includes(_.toLower(el.Account), this.searchKeywords) || _.includes(_.toLower(el.Password), this.searchKeywords) || _.includes(_.toLower(el.Remark), this.searchKeywords)
+        });
       }
       // Sort data
       data = _.orderBy(data, ["APP", "Account"], ["asc", "asc"]);
       // Slice data
+      this.searchKeywordsDataLength = data.length;
       this.filterSheetData = _.slice(data, 0, this.page * this.count);
       this.loadAPI = false;
     }, 1000),
