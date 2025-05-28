@@ -17,7 +17,7 @@
                     <v-col cols="4">
                       <div class="text-right" v-if="item.title === 'Password' || item.title === 'Account'">
                         <v-btn variant="text" color="primary" icon="mdi-content-copy"
-                          @click="copyPassword(item.value)"></v-btn>
+                          @click="copyPassword(item.title, item.value)"></v-btn>
                       </div>
                     </v-col>
                   </v-row>
@@ -86,12 +86,12 @@ export default defineComponent({
     },
   },
   methods: {
-    copyPassword(password) {
+    copyPassword(title, password) {
       navigator.clipboard
         .writeText(password)
         .then(() => {
           this.$store.commit("updateSnackbarMessage", {
-            text: `Password ${password} copied!`,
+            text: `${title} ${password} copied!`,
           });
         })
         .catch((err) => {
