@@ -1,36 +1,43 @@
 <template>
   <div>
-      <v-row align="center" class="fill-height" v-if="isSignedIn">
-        <v-col>
-          <v-card tile max-width="500" class="ml-auto mr-auto">
-            <v-list-item
-              two-line
-              v-for="(item, index) in listItems"
-              :key="`${item.title}${index}`"
-            >
-              <v-list-item-header>
-                <v-list-item-title>
-                  <div class="text-body-1 text-secondary">{{ item.title }}</div>
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  <div class="text-h5">{{ item.value }}</div>
-                </v-list-item-subtitle>
-              </v-list-item-header>
-            </v-list-item>
-            <v-divider class="mt-5"></v-divider>
-            <v-card-actions>
-              <v-btn color="secondary" block size="large" @click="goEdit()"
-                >Edit<v-icon end icon="mdi-pencil"></v-icon
-              ></v-btn>
-            </v-card-actions>
-            <v-card-actions>
-              <v-btn color="primary" block size="large" @click="goList()"
-                >Go back list<v-icon end icon="mdi-heart"></v-icon
-              ></v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
+    <v-row align="center" class="fill-height" v-if="isSignedIn">
+      <v-col>
+        <v-card tile max-width="500" class="ml-auto mr-auto">
+          <v-list-item two-line v-for="(item, index) in listItems" :key="`${item.title}${index}`">
+            <v-list-item-header>
+              <v-list-item-title>
+                <div class="text-body-1 text-secondary">{{ item.title }}</div>
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                <v-container class="pa-0">
+                  <v-row no-gutters>
+                    <v-col cols="8">
+                      <div class="text-h5">{{ item.value }}</div>
+                    </v-col>
+                    <v-col cols="4">
+                      <div class="text-right" v-if="item.title === 'Password' || item.title === 'Account'">
+                        <v-btn variant="text" color="primary" icon="mdi-content-copy"
+                          @click="copyPassword(item.value)"></v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-container>
+
+              </v-list-item-subtitle>
+            </v-list-item-header>
+          </v-list-item>
+          <v-divider class="mt-5"></v-divider>
+          <v-card-actions>
+            <v-btn color="secondary" block size="large" @click="goEdit()">Edit<v-icon end
+                icon="mdi-pencil"></v-icon></v-btn>
+          </v-card-actions>
+          <v-card-actions>
+            <v-btn color="primary" block size="large" @click="goList()">Go back list<v-icon end
+                icon="mdi-heart"></v-icon></v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
     <div v-if="!isSignedIn" class="text-center">
       <ProgressCircle />
     </div>
@@ -79,11 +86,23 @@ export default defineComponent({
     },
   },
   methods: {
+    copyPassword(password) {
+      navigator.clipboard
+        .writeText(password)
+        .then(() => {
+          this.$store.commit("updateSnackbarMessage", {
+            text: `Password ${password} copied!`,
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
     goList() {
       this.$router.push({ name: "list" });
     },
     goEdit() {
-      this.$router.push({ name: "edit", params: { RowNumber: this.currentData.RowNumber }});
+      this.$router.push({ name: "edit", params: { RowNumber: this.currentData.RowNumber } });
     },
   },
 });

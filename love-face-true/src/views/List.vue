@@ -2,29 +2,18 @@
   <div>
     <div v-if="isSignedIn">
       <v-card tile>
-        <v-text-field
-          v-model="searchKeywords"
-          prepend-inner-icon="mdi-magnify"
-          single-line
-          clearable
-          hide-details
-          color="primary"
-          @update:modelValue="updateKeywords"
-        >
+        <v-text-field v-model="searchKeywords" prepend-inner-icon="mdi-magnify" single-line clearable hide-details
+          color="primary" @update:modelValue="updateKeywords">
         </v-text-field>
       </v-card>
       <v-card tile>
         <v-card-actions>
-          <v-btn @click="goAdd()" color="secondary" block size="large"
-            >Add New<v-icon end icon="mdi-plus"></v-icon
-          ></v-btn>
+          <v-btn @click="goAdd()" color="secondary" block size="large">Add New<v-icon end
+              icon="mdi-plus"></v-icon></v-btn>
         </v-card-actions>
       </v-card>
       <v-card tile>
-        <template
-          v-for="item in filterSheetData"
-          :key="`v-list-item-${item.RowNumber}`"
-        >
+        <template v-for="item in filterSheetData" :key="`v-list-item-${item.RowNumber}`">
           <v-list-item three-line>
             <v-list-item-header>
               <v-list-item-title>
@@ -32,10 +21,7 @@
               </v-list-item-title>
               <v-list-item-subtitle>
                 <div class="text-body-1">
-                  <v-icon
-                    icon="mdi-account"
-                    color="secondary ml-0 mr-3"
-                  ></v-icon>
+                  <v-icon icon="mdi-account" color="secondary ml-0 mr-3"></v-icon>
                   {{ item.Account }}
                 </div>
               </v-list-item-subtitle>
@@ -48,20 +34,12 @@
             </v-list-item-header>
             <template v-slot:append>
               <v-list-item-avatar end>
-                <v-btn
-                  variant="text"
-                  color="primary"
-                  icon="mdi-content-copy"
-                  @click="copyPassword(item.Password)"
-                ></v-btn>
+                <v-btn variant="text" color="primary" icon="mdi-content-copy"
+                  @click="copyPassword(item.Password)"></v-btn>
               </v-list-item-avatar>
               <v-list-item-avatar end>
-                <v-btn
-                  variant="text"
-                  color="primary"
-                  icon="mdi-file-document-outline"
-                  @click="goDetail(item.RowNumber)"
-                ></v-btn>
+                <v-btn variant="text" color="primary" icon="mdi-file-document-outline"
+                  @click="goDetail(item.RowNumber)"></v-btn>
               </v-list-item-avatar>
             </template>
           </v-list-item>
@@ -70,12 +48,9 @@
         <v-card-text v-if="filterSheetData?.length === 0">
           <div class="text-h4">No data</div>
         </v-card-text>
-        <v-card-actions
-          v-if="page * count < searchKeywordsDataLength"
-        >
-          <v-btn @click="nextPage()" color="secondary" block size="large"
-            >More<v-icon end icon="mdi-chevron-down"></v-icon
-          ></v-btn>
+        <v-card-actions v-if="page * count < searchKeywordsDataLength">
+          <v-btn @click="nextPage()" color="secondary" block size="large">More<v-icon end
+              icon="mdi-chevron-down"></v-icon></v-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -152,9 +127,10 @@ export default defineComponent({
       this.loadAPI = true;
       let data = this.sheetData;
       if (this.searchKeywords !== null && this.searchKeywords.length) {
+        const searchKeywords = _.toLower(this.searchKeywords);
         // Filter data
-        data = _.filter(data,(el) => {
-          return _.includes(_.toLower(el.APP), this.searchKeywords) || _.includes(_.toLower(el.Account), this.searchKeywords) || _.includes(_.toLower(el.Password), this.searchKeywords) || _.includes(_.toLower(el.Remark), this.searchKeywords)
+        data = _.filter(data, (el) => {
+          return _.includes(_.toLower(el.APP), searchKeywords) || _.includes(_.toLower(el.Account), searchKeywords) || _.includes(_.toLower(el.Password), searchKeywords) || _.includes(_.toLower(el.Remark), searchKeywords)
         });
       }
       // Sort data
